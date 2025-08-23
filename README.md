@@ -431,7 +431,13 @@ This library is designed for general-purpose password utilities. For high-securi
 
 ## Changelog
 
-### v1.0.0 (Latest)
+### v1.0.1 (Latest)
+- **Enhanced Documentation**: Comprehensive README with all advanced features showcased
+- **Complete API Documentation**: Full TypeScript interfaces and crack time examples
+- **Performance Metrics**: Added benchmarks and testing statistics
+- **Advanced Features Highlighting**: Pattern detection, attack modeling, statistical analysis
+
+### v1.0.0  
 - **Advanced Password Strength Analysis** with 0-5 scoring system
 - **Smart Pattern Detection**: Keyboard patterns, leet speak, dates, phone numbers
 - **Realistic Crack Time Estimation**: Online, offline, and fast offline attack scenarios  
