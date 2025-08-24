@@ -513,7 +513,12 @@ This library is designed for general-purpose password utilities. For high-securi
 
 ## Changelog
 
-### v1.1.0 (Latest)
+### v1.1.1 (Latest)
+- **📚 Enhanced Documentation**: Clarified API behavior and method differences
+- **🔄 Backward Compatibility**: Clear documentation that existing users are unaffected
+- **📖 Improved Examples**: Better TypeScript examples and usage patterns
+
+### v1.1.0
 - **🛡️ Pwned Password Checking**: HaveIBeenPwned API integration with privacy-preserving k-anonymity
 - **🖥️ Command Line Interface**: CLI tool for direct password breach checking  
 - **Enhanced API**: New async methods with full backward compatibility
