@@ -1,4 +1,4 @@
-import { PasswordStrengthResult, PasswordVerdict, PasswordAnalysis, CrackTimeEstimate } from './types';
+import { PasswordStrengthResult, PasswordVerdict, PasswordAnalysis, CrackTimeEstimate, PwnedCheckResult } from './types';
 import { isCommonPassword } from './data/commonPasswords';
 import { 
   calculateAdvancedPatternPenalty, 
@@ -8,13 +8,15 @@ import {
   containsPhonePattern,
   EXTENDED_COMMON_PASSWORDS 
 } from './data/advancedPatterns';
+import * as crypto from 'crypto';
+import * as https from 'https';
 
 export class PasswordChecker {
   
   /**
-   * Analyzes password strength and returns detailed results
+   * Analyzes password strength and returns detailed results (synchronous, backward compatible)
    */
-  public static checkPassword(password: string): PasswordStrengthResult {
+  public static checkPassword(password: string): Omit<PasswordStrengthResult, 'pwnedCheck'> {
     const analysis = this.analyzePassword(password);
     const score = this.calculateScore(analysis, password);
     const verdict = this.getVerdict(score);
@@ -27,6 +29,130 @@ export class PasswordChecker {
       suggestions,
       crackTime
     };
+  }
+
+  /**
+   * Analyzes password strength with pwned check (async)
+   */
+  public static async checkPasswordWithPwnedCheck(password: string): Promise<PasswordStrengthResult> {
+    const analysis = this.analyzePassword(password);
+    const pwnedCheck = await this.checkIfPasswordPwned(password);
+    
+    // Adjust score based on pwned status
+    let score = this.calculateScore(analysis, password);
+    if (pwnedCheck.isPwned) {
+      score = Math.min(score, 1); // Cap score at 1 if password is pwned
+    }
+    
+    const verdict = this.getVerdict(score);
+    const suggestions = this.generateSuggestions(analysis, pwnedCheck);
+    const crackTime = this.calculateCrackTime(analysis, password);
+
+    return {
+      score,
+      verdict,
+      suggestions,
+      crackTime,
+      pwnedCheck
+    };
+  }
+
+  /**
+   * Checks if a password has been pwned using the HaveIBeenPwned API
+   */
+  public static async checkIfPasswordPwned(password: string): Promise<PwnedCheckResult> {
+    try {
+      // Generate SHA-1 hash of the password
+      const hash = crypto.createHash('sha1').update(password).digest('hex').toUpperCase();
+      const hashPrefix = hash.substring(0, 5);
+      const hashSuffix = hash.substring(5);
+
+      // Make request to HaveIBeenPwned API
+      const apiResponse = await this.makeHibpApiRequest(hashPrefix);
+      
+      if (!apiResponse) {
+        return {
+          isPwned: false,
+          breachCount: null,
+          errorMessage: 'Failed to connect to HaveIBeenPwned API'
+        };
+      }
+
+      // Parse response to check if our hash suffix is present
+      const lines = apiResponse.split('\n');
+      for (const line of lines) {
+        if (line.trim()) {
+          const [suffix, countStr] = line.split(':');
+          if (suffix === hashSuffix) {
+            const breachCount = parseInt(countStr.trim(), 10);
+            return {
+              isPwned: true,
+              breachCount: breachCount,
+              errorMessage: undefined
+            };
+          }
+        }
+      }
+
+      // Hash not found in breaches
+      return {
+        isPwned: false,
+        breachCount: 0,
+        errorMessage: undefined
+      };
+
+    } catch (error) {
+      return {
+        isPwned: false,
+        breachCount: null,
+        errorMessage: `Error checking password: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
+
+  /**
+   * Makes HTTP request to HaveIBeenPwned API
+   */
+  private static makeHibpApiRequest(hashPrefix: string): Promise<string | null> {
+    return new Promise((resolve) => {
+      const options = {
+        hostname: 'api.pwnedpasswords.com',
+        port: 443,
+        path: `/range/${hashPrefix}`,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'secure-auth-helper-library'
+        },
+        timeout: 5000 // 5 second timeout
+      };
+
+      const req = https.request(options, (res) => {
+        let data = '';
+
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          if (res.statusCode === 200) {
+            resolve(data);
+          } else {
+            resolve(null);
+          }
+        });
+      });
+
+      req.on('error', () => {
+        resolve(null);
+      });
+
+      req.on('timeout', () => {
+        req.destroy();
+        resolve(null);
+      });
+
+      req.end();
+    });
   }
 
   /**
@@ -127,8 +253,18 @@ export class PasswordChecker {
   /**
    * Generates improvement suggestions
    */
-  private static generateSuggestions(analysis: PasswordAnalysis): string[] {
+  private static generateSuggestions(analysis: PasswordAnalysis, pwnedCheck?: PwnedCheckResult): string[] {
     const suggestions: string[] = [];
+
+    // Pwned password warning (highest priority)
+    if (pwnedCheck?.isPwned) {
+      const breachText = pwnedCheck.breachCount ? 
+        ` (found ${pwnedCheck.breachCount.toLocaleString()} times in data breaches)` : 
+        '';
+      suggestions.push(`⚠️ This password has been compromised in data breaches${breachText} - choose a different password immediately`);
+    } else if (pwnedCheck?.errorMessage) {
+      suggestions.push("Could not verify if password has been compromised - consider using a different password for safety");
+    }
 
     if (analysis.isCommonPassword) {
       suggestions.push("Avoid common passwords - use a unique combination");

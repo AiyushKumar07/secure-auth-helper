@@ -1,6 +1,6 @@
 {
   "name": "secure-auth-helper",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A comprehensive password utility library for password strength checking and secure password generation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,8 @@
     "build": "tsc",
     "test": "jest",
     "prepublishOnly": "npm run build",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "check-pwned": "node checkPwned.js"
   },
   "keywords": [
     "password",
@@ -16,7 +17,12 @@
     "authentication",
     "password-strength",
     "password-generator",
-    "entropy"
+    "entropy",
+    "pwned-passwords",
+    "haveibeenpwned",
+    "breach-detection",
+    "cli-tool",
+    "password-checker"
   ],
   "author": "aiyushkumar007",
   "license": "MIT",
@@ -28,7 +34,8 @@
     "typescript": "^5.0.0"
   },
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "checkPwned.js"
   ],
   "engines": {
     "node": ">=14.0.0"

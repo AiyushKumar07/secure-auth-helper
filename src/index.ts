@@ -9,7 +9,8 @@ export type {
   PasswordVerdict,
   GeneratePasswordOptions,
   PasswordAnalysis,
-  CrackTimeEstimate
+  CrackTimeEstimate,
+  PwnedCheckResult
 } from './types';
 
 // Import classes for internal use in convenience functions
@@ -20,6 +21,14 @@ import type { GeneratePasswordOptions } from './types';
 // Convenience functions for easier usage
 export function checkPasswordStrength(password: string) {
   return PasswordChecker.checkPassword(password);
+}
+
+export async function checkPasswordStrengthWithPwnedCheck(password: string) {
+  return PasswordChecker.checkPasswordWithPwnedCheck(password);
+}
+
+export async function checkIfPasswordPwned(password: string) {
+  return PasswordChecker.checkIfPasswordPwned(password);
 }
 
 export function generatePassword(options?: GeneratePasswordOptions) {
@@ -37,6 +46,8 @@ export function generateMemorablePassword(wordCount?: number, addNumbers?: boole
 // Default export with all utilities
 export default {
   checkPasswordStrength,
+  checkPasswordStrengthWithPwnedCheck,
+  checkIfPasswordPwned,
   generatePassword,
   generateStrongPassword,
   generateMemorablePassword,

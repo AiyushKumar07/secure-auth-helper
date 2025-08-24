@@ -4,10 +4,12 @@ A comprehensive password utility library for Node.js applications, providing pas
 
 ## Features
 
+- **🛡️ Pwned Password Checking**: Privacy-preserving breach detection using HaveIBeenPwned API
 - **Advanced Password Strength Analysis**: Multi-layered evaluation with realistic crack time estimation
 - **Smart Pattern Detection**: Detects keyboard patterns, leet speak, dates, phone numbers, and statistical anomalies  
 - **Cryptographically Secure Generation**: Uses Node.js crypto for unpredictable password creation
 - **Multiple Attack Scenario Modeling**: Online, offline, and fast offline crack time estimates
+- **🖥️ Command Line Interface**: Direct CLI tool for password breach checking
 - **Memorable Password Generation**: Human-friendly passwords with customizable word patterns
 - **High Performance**: 140μs per generation, 40μs per analysis - suitable for high-throughput applications
 - **TypeScript Support**: Complete type definitions with IntelliSense support
@@ -51,6 +53,30 @@ const password = generatePassword({
 });
 console.log(password); // "Xz!7jLmR$1@qN9pK"
 ```
+
+## 🖥️ Command Line Interface
+
+Check any password for breaches directly from the command line:
+
+```bash
+# Direct usage
+node checkPwned.js password123
+# 🚨 PWNED: Found 918,824 times in data breaches
+
+# Using npm script
+npm run check-pwned "MySecurePassword123!"  
+# ✅ Not found in known data breaches
+
+# Without arguments shows help
+node checkPwned.js
+# Usage: node checkPwned.js <password>
+```
+
+### CLI Features
+- **Privacy-Preserving**: Uses k-anonymity - only first 5 SHA-1 hash characters sent to API
+- **Real-time Breach Data**: Checks against HaveIBeenPwned database
+- **Clear Output**: Shows breach count and safety recommendations  
+- **Error Handling**: Graceful network error handling
 
 ## Password Strength Checker
 
@@ -403,7 +429,7 @@ The package includes **58 comprehensive tests** covering:
 - Concurrent operation safety
 
 ### Test Results
-- **✅ 58/58 tests passing**
+- **✅ 65/65 tests passing**
 - **✅ 100% success rate**  
 - **✅ All edge cases covered**
 - **✅ Production-ready reliability**
@@ -431,9 +457,13 @@ This library is designed for general-purpose password utilities. For high-securi
 
 ## Changelog
 
-### v1.0.1 (Latest)
+### v1.1.0 (Latest)
+- **🛡️ Pwned Password Checking**: HaveIBeenPwned API integration with privacy-preserving k-anonymity
+- **🖥️ Command Line Interface**: CLI tool for direct password breach checking  
+- **Enhanced API**: New async methods with full backward compatibility
+- **Comprehensive Testing**: 65+ tests including pwned password functionality
 - **Enhanced Documentation**: Comprehensive README with all advanced features showcased
-- **Complete API Documentation**: Full TypeScript interfaces and crack time examples
+- **Complete API Documentation**: Full TypeScript interfaces and crack time examples  
 - **Performance Metrics**: Added benchmarks and testing statistics
 - **Advanced Features Highlighting**: Pattern detection, attack modeling, statistical analysis
 

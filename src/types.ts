@@ -7,6 +7,12 @@ export interface CrackTimeEstimate {
   attackScenario: "online" | "offline" | "offline_fast";
 }
 
+export interface PwnedCheckResult {
+  isPwned: boolean;
+  breachCount: number | null; // Number of times found in breaches, null if check failed
+  errorMessage?: string; // Error message if check failed
+}
+
 export interface PasswordStrengthResult {
   score: number; // 0-5 scale
   verdict: PasswordVerdict;
@@ -16,6 +22,7 @@ export interface PasswordStrengthResult {
     offline: CrackTimeEstimate;
     offlineFast: CrackTimeEstimate;
   };
+  pwnedCheck: PwnedCheckResult;
 }
 
 // Types for Password Generator
