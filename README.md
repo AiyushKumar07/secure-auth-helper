@@ -83,13 +83,20 @@ node checkPwned.js
 ### Basic Usage
 
 ```javascript
-import { PasswordChecker } from 'secure-auth-helper';
+import { PasswordChecker, checkPasswordStrength } from 'secure-auth-helper';
 
+// Synchronous (backward compatible)
 const result = PasswordChecker.checkPassword('MySecurePassword123!');
+// OR using convenience function
+const result = checkPasswordStrength('MySecurePassword123!');
+
+// Asynchronous with pwned checking
+const resultWithPwned = await PasswordChecker.checkPasswordWithPwnedCheck('MySecurePassword123!');
 ```
 
 ### Return Format
 
+**Synchronous Methods** (`checkPassword`, `checkPasswordStrength`):
 ```typescript
 interface PasswordStrengthResult {
   score: number;        // 0-5 scale
@@ -101,7 +108,21 @@ interface PasswordStrengthResult {
     offlineFast: CrackTimeEstimate; // Fast offline (10T attempts/sec)
   };
 }
+```
 
+**Asynchronous Methods** (`checkPasswordWithPwnedCheck`):
+```typescript
+interface PasswordStrengthResultWithPwned extends PasswordStrengthResult {
+  pwnedCheck: {
+    isPwned: boolean;              // True if found in breaches
+    breachCount: number | null;    // Times found in breaches
+    errorMessage?: string;         // Error if API call failed
+  };
+}
+```
+
+**Common Interface**:
+```typescript
 interface CrackTimeEstimate {
   seconds: number;
   humanReadable: string;          // "5 years", "3 months", "instantly"
@@ -323,23 +344,58 @@ Full TypeScript definitions are included:
 
 ```typescript
 import { 
-  PasswordStrengthResult, 
+  PasswordStrengthResult,
+  PwnedCheckResult,
   GeneratePasswordOptions,
   PasswordVerdict 
 } from 'secure-auth-helper';
 
+// Synchronous usage (original)
 const checkResult: PasswordStrengthResult = checkPasswordStrength('test');
+
+// Asynchronous usage (new)
+const pwnedResult: Promise<PasswordStrengthResult & {pwnedCheck: PwnedCheckResult}> = 
+  checkPasswordStrengthWithPwnedCheck('test');
+
 const options: GeneratePasswordOptions = { length: 16, symbols: false };
 ```
 
+## 🔄 Backward Compatibility
+
+**✅ Existing users are NOT affected by v1.1.0 updates!**
+
+All existing code continues to work exactly as before:
+```javascript
+// v1.0.x code continues to work unchanged
+import { checkPasswordStrength, generatePassword } from 'secure-auth-helper';
+
+const result = checkPasswordStrength('myPassword123!');
+console.log(result.score, result.verdict); // Same as before
+
+const password = generatePassword({ length: 12 });
+// All existing functionality preserved
+```
+
+The new pwned password checking is **opt-in only** via new methods:
+- `checkPasswordStrengthWithPwnedCheck()` - Async with breach checking
+- `checkIfPasswordPwned()` - Standalone breach checking
+
 ## API Reference
 
-### Password Checker
+### Password Checker (Synchronous - Original)
 
 | Method | Parameters | Returns | Description |
 |--------|------------|---------|-------------|
-| `checkPasswordStrength(password)` | `string` | `PasswordStrengthResult` | Analyzes password strength |
-| `PasswordChecker.checkPassword(password)` | `string` | `PasswordStrengthResult` | Class method for password analysis |
+| `checkPasswordStrength(password)` | `string` | `PasswordStrengthResult` | Analyzes password strength (sync) |
+| `PasswordChecker.checkPassword(password)` | `string` | `PasswordStrengthResult` | Class method for password analysis (sync) |
+
+### Password Checker (Asynchronous - New in v1.1.0)
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `checkPasswordStrengthWithPwnedCheck(password)` | `string` | `Promise<PasswordStrengthResultWithPwned>` | Analyzes with breach checking (async) |
+| `PasswordChecker.checkPasswordWithPwnedCheck(password)` | `string` | `Promise<PasswordStrengthResultWithPwned>` | Class method with breach checking (async) |
+| `checkIfPasswordPwned(password)` | `string` | `Promise<PwnedCheckResult>` | Standalone breach checking (async) |
 
 ### Password Generator
 
