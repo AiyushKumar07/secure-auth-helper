@@ -2,6 +2,7 @@
 
 export { PasswordChecker } from './passwordChecker';
 export { PasswordGenerator } from './passwordGenerator';
+export { EmailChecker } from './emailChecker';
 
 // Export types for TypeScript users
 export type {
@@ -10,12 +11,16 @@ export type {
   GeneratePasswordOptions,
   PasswordAnalysis,
   CrackTimeEstimate,
-  PwnedCheckResult
+  PwnedCheckResult,
+  EmailValidationResult,
+  EmailValidations,
+  EmailStatus
 } from './types';
 
 // Import classes for internal use in convenience functions
 import { PasswordChecker } from './passwordChecker';
 import { PasswordGenerator } from './passwordGenerator';
+import { EmailChecker } from './emailChecker';
 import type { GeneratePasswordOptions } from './types';
 
 // Convenience functions for easier usage
@@ -43,6 +48,19 @@ export function generateMemorablePassword(wordCount?: number, addNumbers?: boole
   return PasswordGenerator.generateMemorablePassword(wordCount, addNumbers, addSymbols);
 }
 
+// Email validation convenience functions
+export function validateEmail(email: string) {
+  return EmailChecker.validateEmail(email);
+}
+
+export function isValidEmailSyntax(email: string) {
+  return EmailChecker.isValidEmailSyntax(email);
+}
+
+export function validateEmails(emails: string[]) {
+  return EmailChecker.validateEmails(emails);
+}
+
 // Default export with all utilities
 export default {
   checkPasswordStrength,
@@ -51,6 +69,10 @@ export default {
   generatePassword,
   generateStrongPassword,
   generateMemorablePassword,
+  validateEmail,
+  isValidEmailSyntax,
+  validateEmails,
   PasswordChecker,
-  PasswordGenerator
+  PasswordGenerator,
+  EmailChecker
 };

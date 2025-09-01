@@ -1,7 +1,7 @@
 {
   "name": "secure-auth-helper",
-  "version": "1.1.1",
-  "description": "A comprehensive password utility library for password strength checking and secure password generation",
+  "version": "1.2.0",
+  "description": "A comprehensive security utility library for password strength checking, secure password generation, and email validation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -9,7 +9,9 @@
     "test": "jest",
     "prepublishOnly": "npm run build",
     "dev": "tsc --watch",
-    "check-pwned": "node checkPwned.js"
+    "check-pwned": "node checkPwned.js",
+    "check-strength": "node checkStrength.js",
+    "check-email": "node checkEmail.js"
   },
   "keywords": [
     "password",
@@ -17,6 +19,10 @@
     "authentication",
     "password-strength",
     "password-generator",
+    "email-validation",
+    "email-checker",
+    "disposable-email",
+    "role-based-email",
     "entropy",
     "pwned-passwords",
     "haveibeenpwned",
@@ -35,7 +41,9 @@
   },
   "files": [
     "dist/**/*",
-    "checkPwned.js"
+    "checkPwned.js",
+    "checkStrength.js",
+    "checkEmail.js"
   ],
   "engines": {
     "node": ">=14.0.0"

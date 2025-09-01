@@ -45,3 +45,23 @@ export interface PasswordAnalysis {
   isCommonPassword: boolean;
   varietyScore: number;
 }
+
+// Types for Email Validation
+export type EmailStatus = "VALID" | "INVALID";
+
+export interface EmailValidations {
+  syntax: boolean;
+  domain_exists: boolean;
+  mx_records: boolean;
+  mailbox_exists: boolean;
+  is_disposable: boolean;
+  is_role_based: boolean;
+}
+
+export interface EmailValidationResult {
+  email: string;
+  validations: EmailValidations;
+  score: number; // 0-100 scale
+  status: EmailStatus;
+  suggestions?: string[];
+}
